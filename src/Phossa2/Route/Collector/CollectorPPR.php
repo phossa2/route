@@ -59,20 +59,32 @@ class CollectorPPR extends CollectorAbstract
      */
     protected function match(ResultInterface $result)/*# : bool */
     {
-        $path = trim($result->getPath(), ' /');
-        if (count($parts = explode('/', $path)) > 1) {
-            if (count($parts) % 2) {
-                $result->setStatus(Status::BAD_REQUEST);
-                return false;
-            }
-
-            $result->setStatus(Status::OK)
-                   ->setHandler($this->retrieveHandler($parts))
-                   ->setParameter($this->retrieveParams($parts));
-            return true;
+        $parts = explode('/', trim($result->getPath(), ' /'));
+        if (count($parts) > 1) {
+            return $this->processParts($parts, $result);
         }
         $result->setStatus(Status::BAD_REQUEST);
         return false;
+    }
+
+    /**
+     *
+     * @param  array $parts
+     * @access protected
+     */
+    protected function processParts(
+        array $parts,
+        ResultInterface $result
+    )/*# : bool */ {
+        if (count($parts) % 2) {
+            $result->setStatus(Status::BAD_REQUEST);
+            return false;
+        }
+
+        $result->setStatus(Status::OK)
+            ->setHandler($this->retrieveHandler($parts))
+            ->setParameters($this->retrieveParams($parts));
+        return true;
     }
 
     /**

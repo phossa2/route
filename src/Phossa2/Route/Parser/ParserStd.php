@@ -30,22 +30,6 @@ use Phossa2\Route\Message\Message;
 class ParserStd extends ParserAbstract
 {
     /**
-     * flag for new route added.
-     *
-     * @var    bool
-     * @access protected
-     */
-    protected $modified = false;
-
-    /**
-     * regex storage
-     *
-     * @var    string[]
-     * @access protected
-     */
-    protected $regex = [];
-
-    /**
      * chunk size 4 - 12 for merging regex
      *
      * @var    int
@@ -69,16 +53,7 @@ class ParserStd extends ParserAbstract
         /*# string */ $routePattern
     )/*# : string */ {
         $regex = $this->convert($routeName, $routePattern);
-        $this->regex[$routeName] = $regex;
-        $this->modified = true;
-
-        // debug message
-        $this->debug(Message::get(
-            Message::RTE_PARSER_PATTERN,
-            $routePattern,
-            $regex
-        ));
-
+        $this->doneProcess($routeName, $routePattern, $regex);
         return $regex;
     }
 
@@ -114,19 +89,17 @@ class ParserStd extends ParserAbstract
         $placeholder = sprintf("\{%s(?:%s)?\}", $groupname, $grouptype);
         $segmenttype = "[^/]++";
 
-        $result = preg_replace(
-            [
-                '~' . $placeholder . '(*SKIP)(*FAIL) | \[~x',
-                '~' . $placeholder . '(*SKIP)(*FAIL) | \]~x',
-                '~\{' . $groupname . '\}~x',
-                '~' . $placeholder . '~x',
-            ], [
-                '(?:',  // replace '['
-                ')?',   // replace ']'
-                '{\\1:' . $segmenttype . '}',   // add segementtype
-                '(?<${1}'. $name . '>${2})'   // replace groupname
-            ], strtr('/' . trim($pattern, '/'), $this->shortcuts)
-        );
+        $result = preg_replace([
+            '~' . $placeholder . '(*SKIP)(*FAIL) | \[~x',
+            '~' . $placeholder . '(*SKIP)(*FAIL) | \]~x',
+            '~\{' . $groupname . '\}~x',
+            '~' . $placeholder . '~x',
+        ], [
+            '(?:',  // replace '['
+            ')?',   // replace ']'
+            '{\\1:' . $segmenttype . '}',   // add segementtype
+            '(?<${1}'. $name . '>${2})'   // replace groupname
+        ], strtr('/' . trim($pattern, '/'), $this->shortcuts));
 
         return empty($name) ? $result : ("(?<$name>" . $result . ")");
     }
@@ -140,7 +113,7 @@ class ParserStd extends ParserAbstract
     protected function getRegexData()/*# : array */
     {
         // load from cache
-        if (empty($this->regex) || !$this->modified) {
+        if (!$this->modified) {
             return $this->data;
         }
 
@@ -172,8 +145,6 @@ class ParserStd extends ParserAbstract
         // get route key/name
         $routeName = array_keys($matches)[0];
         $len = strlen($routeName);
-
-        // fix remainging match key
         $res = [];
         foreach ($matches as $key => $val) {
             if ($key != $routeName) {
@@ -181,11 +152,8 @@ class ParserStd extends ParserAbstract
             }
         }
 
-        // debug
         $this->debug(Message::get(
-            Message::RTE_PARSER_MATCH,
-            $routeName,
-            $this->regex[$routeName]
+            Message::RTE_PARSER_MATCH, $routeName, $this->regex[$routeName]
         ));
 
         return [$routeName, $res];

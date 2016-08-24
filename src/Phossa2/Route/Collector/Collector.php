@@ -77,39 +77,52 @@ class Collector extends CollectorAbstract
      */
     public function addRoute(RouteInterface $route)
     {
-        // generate unique key
+        // process pattern
         $routeKey = $this->getRouteKey($route);
-
-        // parse pattern if not yet
         if (!isset($this->routes[$routeKey])) {
             $this->routes[$routeKey] = [];
             $this->parser->processRoute($routeKey, $route->getPattern());
         }
 
-        // related http methods
-        $methods = $route->getMethods();
-
-        // save routes
-        foreach ($methods as $method) {
-            // duplication found
-            if (isset($this->routes[$routeKey][$method])) {
-                throw new LogicException(
-                    Message::get(
-                        Message::RTE_ROUTE_DUPLICATED,
-                        $route->getPattern(),
-                        $method
-                    ), Message::RTE_ROUTE_DUPLICATED
-                );
-            }
+        // save route
+        foreach ($route->getMethods() as $method) {
+            $this->checkDuplication($route, $routeKey, $method);
             $this->routes[$routeKey][$method] = $route;
         }
 
         // debug message
         $this->debug(Message::get(
-            Message::RTE_ROUTE_ADDED, $route->getPattern(), join('|', $methods)
+            Message::RTE_ROUTE_ADDED,
+            $route->getPattern(),
+            join('|', $route->getMethods())
         ));
 
         return $this;
+    }
+
+    /**
+     * Same route pattern and method ?
+     *
+     * @param  RouteInterface $route
+     * @param  string $routeKey
+     * @param  string $method
+     * @throws LogicException if duplication found
+     * @access protected
+     */
+    protected function checkDuplication(
+        RouteInterface $route,
+        /*# string */ $routeKey,
+        /*# string */ $method
+    ) {
+        if (isset($this->routes[$routeKey][$method])) {
+            throw new LogicException(
+                Message::get(
+                    Message::RTE_ROUTE_DUPLICATED,
+                    $route->getPattern(),
+                    $method
+                ), Message::RTE_ROUTE_DUPLICATED
+            );
+        }
     }
 
     /**
@@ -164,7 +177,7 @@ class Collector extends CollectorAbstract
 
         $result->setStatus(Status::OK)
                ->setRoute($route)
-               ->setParameter($matches)
+               ->setParameters($matches)
                ->setHandler($route->getHandler(Status::OK));
 
         return true;

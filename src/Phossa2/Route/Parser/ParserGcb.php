@@ -30,22 +30,6 @@ use Phossa2\Route\Message\Message;
 class ParserGcb extends ParserAbstract
 {
     /**
-     * flag for new route added.
-     *
-     * @var    bool
-     * @access protected
-     */
-    protected $modified = false;
-
-    /**
-     * regex storage
-     *
-     * @var    string[]
-     * @access protected
-     */
-    protected $regex = [];
-
-    /**
      * group position map
      *
      * @var    array
@@ -85,17 +69,8 @@ class ParserGcb extends ParserAbstract
         /*# string */ $routePattern
     )/*# : string */ {
         list($regex, $map) = $this->convert($routePattern);
-        $this->regex[$routeName] = $regex;
         $this->maps[$routeName] = $map;
-        $this->modified = true;
-
-        // debug message
-        $this->debug(Message::get(
-            Message::RTE_PARSER_PATTERN,
-            $routePattern,
-            $regex
-        ));
-
+        $this->doneProcess($routeName, $routePattern, $regex);
         return $regex;
     }
 
@@ -162,7 +137,7 @@ class ParserGcb extends ParserAbstract
     protected function getRegexData()/*# : array */
     {
         // load from cache
-        if (empty($this->regex) || !$this->modified) {
+        if (!$this->modified) {
             return $this->data;
         }
 

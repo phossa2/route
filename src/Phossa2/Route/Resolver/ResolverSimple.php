@@ -38,11 +38,8 @@ class ResolverSimple extends ObjectAbstract implements ResolverInterface
      */
     public function resolve($handler)/*# : callable */
     {
-        // callable
         if (is_callable($handler)) {
             return $handler;
-
-        // append Controller/Action
         } elseif (is_array($handler)) {
             $controller = $handler[0] . 'Controller';
             $action = $handler[1] . 'Action';
@@ -51,8 +48,6 @@ class ResolverSimple extends ObjectAbstract implements ResolverInterface
                 return $result;
             }
         }
-
-        // unknown
         throw new LogicException(
             Message::get(Message::RTE_HANDLER_UNKNOWN, $handler),
             Message::RTE_HANDLER_UNKNOWN

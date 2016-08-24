@@ -82,7 +82,7 @@ class Result extends ObjectAbstract implements ResultInterface
 
     /**
      * @param  string $uriPath the URI path to match with
-     * @param  string $method HTTP method
+     * @param  string $httpMethod HTTP method
      * @access public
      */
     public function __construct(

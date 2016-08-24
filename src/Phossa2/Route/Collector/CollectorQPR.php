@@ -73,15 +73,7 @@ class CollectorQPR extends CollectorPPR
         if (isset($_REQUEST[$this->varname])) {
             $parts = explode($this->seperator, $_REQUEST[$this->varname]);
             if (count($parts) > 1) {
-                if (count($parts) % 2) {
-                    $result->setStatus(Status::BAD_REQUEST);
-                    return false;
-                }
-
-                $result->setStatus(Status::OK)
-                       ->setHandler($this->retrieveHandler($parts))
-                       ->setParameter($this->retrieveParams($parts));
-                return true;
+                return $this->processParts($parts, $result);
             }
         }
         $result->setStatus(Status::BAD_REQUEST);

@@ -60,25 +60,22 @@ abstract class CollectorAbstract extends EventCapableAbstract implements Collect
      */
     public function matchRoute(ResultInterface $result)/*# : bool */
     {
+        $res = false;
         $param = ['result' => $result];
         if ($this->trigger(self::EVENT_BEFORE_MATCH, $param) &&
             $this->match($result) &&
             $this->trigger(self::EVENT_AFTER_MATCH, $param)
         ) {
-            // debug message
+            $res = true;
             $this->debug(Message::get(
                 Message::DEBUG_MATCH_ROUTE,
                 $result->getPath(),
                 $result->getRoute()->getPattern()
             ));
-
-            $this->setCollectorHandler($result);
-            return true;
         }
 
-        // match failed
         $this->setCollectorHandler($result);
-        return false;
+        return $res;
     }
 
     /**
