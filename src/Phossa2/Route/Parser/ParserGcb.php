@@ -141,24 +141,18 @@ class ParserGcb extends ParserAbstract
             return $this->data;
         }
 
-        // chunk size
+        // merge
         $this->data = array_chunk($this->regex, $this->chunk, true);
-
-        // count groups
         foreach ($this->data as $i => $arr) {
             $map = $this->getMapData($arr, $this->maps);
             $str = '~^(?|';
             foreach ($arr as $k => $reg) {
-                $str .= $reg .
-                str_repeat('()', $map[$k] - count($this->maps[$k])) . '|';
+                $str .= $reg . str_repeat('()', $map[$k] - count($this->maps[$k])) . '|';
             }
             $this->data[$i] = substr($str, 0, -1) . ')$~x';
             $this->xmap[$i] = $map;
         }
-
-        // save to cache here
         $this->modified = false;
-
         return $this->data;
     }
 
