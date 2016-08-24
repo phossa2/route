@@ -31,7 +31,7 @@ interface HandlerAwareInterface
     /**
      * Add route handler for the corresponding http status
      *
-     * @param  callable|array $handler callable or ['controller','action']
+     * @param  mixed $handler callable or ['controller','action']
      * @param  int $status http status
      * @return $this
      * @access public
@@ -43,7 +43,7 @@ interface HandlerAwareInterface
      * Get route handler for this status code
      *
      * @param  int $status http status
-     * @return callable|null
+     * @return mixed
      * @access public
      */
     public function getHandler(/*# int */ $status);

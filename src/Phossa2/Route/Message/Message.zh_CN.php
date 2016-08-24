@@ -37,4 +37,5 @@ return [
     Message::RTE_ROUTE_DUPLICATED => '路由定义 "%s"重复了(方法 "%s")',
     Message::RTE_ROUTE_ADDED => '添加了路由定义 "%s" (适用于 "%s")',
     Message::RTE_ROUTE_DISALLOWED => '路由定义 "%s" 在  "%s" 中被禁止',
+    Message::RTE_ROUTE_MATCHED => '路径 "%s" 与路由 "%s" 匹配成功',
 ];

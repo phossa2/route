@@ -59,7 +59,7 @@ class CollectorPPR extends CollectorAbstract
      */
     protected function match(ResultInterface $result)/*# : bool */
     {
-        $parts = explode('/', trim($result->getPath(), ' /'));
+        $parts = explode('/', trim($result->getPath(), '/'));
         if (count($parts) > 1) {
             return $this->processParts($parts, $result);
         }

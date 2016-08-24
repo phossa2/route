@@ -79,7 +79,7 @@ class Route extends EventCapableAbstract implements RouteInterface, HandlerAware
      *
      * @param  string|string[] $httpMethod 'GET|POST' allowed for this route.
      * @param  string $pattern matching pattern
-     * @param  callable|array $handler for Status::OK status
+     * @param  mixed $handler for Status::OK status
      * @param  array $defaultValues default value for placeholders
      * @throws LogicException if pattern malformed
      * @access public
@@ -166,7 +166,8 @@ class Route extends EventCapableAbstract implements RouteInterface, HandlerAware
      */
     protected function validatePattern(/*# string */ $pattern)
     {
-        if (substr_count($pattern, '[') !== substr_count($pattern, ']') ||
+        if (!is_string($pattern) ||
+            substr_count($pattern, '[') !== substr_count($pattern, ']') ||
             substr_count($pattern, '{') !== substr_count($pattern, '}')
         ) {
             throw new LogicException(

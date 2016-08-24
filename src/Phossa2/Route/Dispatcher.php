@@ -114,10 +114,10 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
      * {@inheritDoc}
      */
     public function match(
-        /*# string */ $uriPath = '',
-        /*# string */ $httpMethod = 'GET'
+        /*# string */ $httpMethod,
+        /*# string */ $uriPath
     )/*# :  bool */ {
-        $this->result = new Result($uriPath, $httpMethod);
+        $this->initResult($httpMethod, $uriPath);
 
         $param = ['result' => $this->result];
         if ($this->trigger(self::EVENT_BEFORE_MATCH, $param) &&
@@ -133,10 +133,10 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
      * {@inheritDoc}
      */
     public function dispatch(
-        /*# string */ $uriPath = '',
-        /*# string */ $httpMethod = 'GET'
+        /*# string */ $httpMethod,
+        /*# string */ $uriPath
     )/*# : bool */ {
-        if ($this->match($uriPath, $httpMethod)) {
+        if ($this->match($httpMethod, $uriPath)) {
             $param = ['result' => $this->result];
             if ($this->trigger(self::EVENT_BEFORE_DISPATCH, $param) &&
                 $this->executeHandler() &&
@@ -170,6 +170,18 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
         $this->getCollectors()[0]->addRoute($route);
 
         return $this;
+    }
+
+    /**
+     * Initialize the result
+     *
+     * @param  string $httpMethod
+     * @param  string $uriPath
+     * @access protected
+     */
+    protected function initResult($httpMethod, $uriPath)
+    {
+        $this->result = new Result($httpMethod, $uriPath);
     }
 
     /**

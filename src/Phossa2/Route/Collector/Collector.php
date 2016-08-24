@@ -55,12 +55,15 @@ class Collector extends CollectorAbstract
      * Constructor
      *
      * @param  ParserInterface $parser
+     * @param  array $properties
      * @access public
-     * @api
      */
-    public function __construct(ParserInterface $parser = null)
-    {
+    public function __construct(
+        ParserInterface $parser = null,
+        array $properties = []
+    ) {
         $this->parser = $parser ?: new ParserGcb();
+        parent::__construct($properties);
 
         if ($this->isDebugging()) {
             $this->debug(Message::get(
@@ -177,7 +180,7 @@ class Collector extends CollectorAbstract
 
         $result->setStatus(Status::OK)
                ->setRoute($route)
-               ->setParameters($matches)
+               ->setParameters(array_replace($route->getDefault(), $matches))
                ->setHandler($route->getHandler(Status::OK));
 
         return true;

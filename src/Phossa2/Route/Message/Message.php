@@ -88,6 +88,11 @@ class Message extends BaseMessage
     const RTE_ROUTE_DISALLOWED = 1608231042;
 
     /**
+     * Path "%s" matched with route "%s"
+     */
+    const RTE_ROUTE_MATCHED = 1608231043;
+
+    /**
      * {@inheritDoc}
      */
     protected static $messages = [
@@ -103,5 +108,6 @@ class Message extends BaseMessage
         self::RTE_ROUTE_DUPLICATED => 'Route "%s" duplicated for method "%s"',
         self::RTE_ROUTE_ADDED => 'Route "%s" added for methods "%s"',
         self::RTE_ROUTE_DISALLOWED => 'Route "%s" is disallowed for "%s"',
+        self::RTE_ROUTE_MATCHED => 'Path "%s" matched with route "%s"',
     ];
 }

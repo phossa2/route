@@ -51,7 +51,7 @@ class Result extends ObjectAbstract implements ResultInterface
     /**
      * the handler
      *
-     * @var    callable|array
+     * @var    mixed
      * @access protected
      */
     protected $handler;
@@ -81,16 +81,16 @@ class Result extends ObjectAbstract implements ResultInterface
     protected $method;
 
     /**
-     * @param  string $uriPath the URI path to match with
      * @param  string $httpMethod HTTP method
+     * @param  string $uriPath the URI path to match with
      * @access public
      */
     public function __construct(
-        /*# string */ $uriPath,
-        /*# string */ $httpMethod
+        /*# string */ $httpMethod,
+        /*# string */ $uriPath
     ) {
-        $this->path = $uriPath;
         $this->method = $httpMethod;
+        $this->setPath($uriPath);
     }
 
     /**
@@ -148,9 +148,7 @@ class Result extends ObjectAbstract implements ResultInterface
      */
     public function setHandler($handler)
     {
-        if ($handler) {
-            $this->handler = $handler;
-        }
+        $this->handler = $handler;
         return $this;
     }
 
@@ -177,5 +175,24 @@ class Result extends ObjectAbstract implements ResultInterface
     public function getRoute()
     {
         return $this->route;
+    }
+
+    /**
+     * Set the path
+     * @param  string $uriPath
+     * @access protected
+     */
+    protected function setPath(/*# string */ $uriPath)
+    {
+        $pos = strpos($uriPath, '?');
+        if (false !== $pos) {
+            $path = substr($uriPath, 0, $pos);
+            parse_str(substr($uriPath, $pos + 1), $this->parameters);
+        } else {
+            $path = $uriPath;
+        }
+
+        // remove trailing '/'
+        $this->path = rtrim($path, '/');
     }
 }

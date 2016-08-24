@@ -27,29 +27,29 @@ interface DispatcherInterface
     /**
      * Match against URI PATH and HTTP METHOD
      *
-     * @param  string $uriPath
      * @param  string $httpMethod
+     * @param  string $uriPath
      * @return bool
      * @access public
      * @api
      */
     public function match(
-        /*# string */ $uriPath = '',
-        /*# string */ $httpMethod = 'GET'
-    )/*# :  bool */;
+        /*# string */ $httpMethod,
+        /*# string */ $uriPath
+    )/*# : bool */;
 
     /**
      * Match and dispatch against URI PATH and HTTP METHOD
      *
-     * @param  string $uriPath
      * @param  string $httpMethod
+     * @param  string $uriPath
      * @return bool
      * @access public
      * @api
      */
     public function dispatch(
-        /*# string */ $uriPath = '',
-        /*# string */ $httpMethod = 'GET'
+        /*# string */ $httpMethod,
+        /*# string */ $uriPath
     )/*# : bool */;
 
     /**

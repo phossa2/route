@@ -56,6 +56,17 @@ abstract class CollectorAbstract extends EventCapableAbstract implements Collect
     /**#@-*/
 
     /**
+     * Constructor
+     *
+     * @param  array $properties
+     * @access public
+     */
+    public function __construct(array $properties = [])
+    {
+        $this->setProperties($properties);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function matchRoute(ResultInterface $result)/*# : bool */
@@ -68,7 +79,7 @@ abstract class CollectorAbstract extends EventCapableAbstract implements Collect
         ) {
             $res = true;
             $this->debug(Message::get(
-                Message::DEBUG_MATCH_ROUTE,
+                Message::RTE_ROUTE_MATCHED,
                 $result->getPath(),
                 $result->getRoute()->getPattern()
             ));

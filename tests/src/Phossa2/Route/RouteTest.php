@@ -15,7 +15,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->object = new Route('GET', '/test', function($result) { echo "test"; });
+        $this->object = new Route('GET', '/test', null);
     }
 
     /**
@@ -59,11 +59,112 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test get
+     * Test addHandler
+     *
+     * @covers Phossa2\Route\Route::addHandler()
+     */
+    public function testAddHandler()
+    {
+        $this->object->addHandler('test', Status::METHOD_NOT_ALLOWED);
+        $this->assertEquals(
+            'test',
+            $this->object->getHandler(Status::METHOD_NOT_ALLOWED)
+        );
+    }
+
+    /**
+     * Test getHandler
+     *
+     * @covers Phossa2\Route\Route::getHandler()
+     */
+    public function testGetHandler()
+    {
+        $this->assertTrue(is_null($this->object->getHandler(Status::OK)));
+    }
+
+    /**
+     * Test getPattern
      *
      * @cover Phossa2\Route\Route::getPattern()
      */
     public function testGetPattern()
     {
+        $this->assertEquals('/test', $this->object->getPattern());
+    }
+
+    /**
+     * Test setPattern, non string
+     *
+     * @cover Phossa2\Route\Route::setPattern()
+     * @expectedException Phossa2\Route\Exception\LogicException
+     * @expectedExceptionCode Phossa2\Route\Message\Message::RTE_PATTERN_MALFORM
+     *
+     */
+    public function testSetPattern1()
+    {
+        $this->object->setPattern(2);
+    }
+
+    /**
+     * Test setPattern, non matching '[]'
+     *
+     * @cover Phossa2\Route\Route::setPattern()
+     * @expectedException Phossa2\Route\Exception\LogicException
+     * @expectedExceptionCode Phossa2\Route\Message\Message::RTE_PATTERN_MALFORM
+     *
+     */
+    public function testSetPattern2()
+    {
+        $this->object->setPattern('/user/{action:[^0-9/][^/*}/{id:[0-9]+}');
+    }
+
+    /**
+     * Test setMethods
+     *
+     * @cover Phossa2\Route\Route::setMethods()
+     * @cover Phossa2\Route\Route::getMethods()
+     */
+    public function testSetMethods()
+    {
+        $res = ['GET', 'POST', 'HEAD'];
+
+        $this->object->setMethods('get, post, head');
+        $this->assertEquals($res, $this->object->getMethods());
+
+        $this->object->setMethods(['get', 'post', 'head']);
+        $this->assertEquals($res, $this->object->getMethods());
+    }
+
+    /**
+     * Test setDefault
+     *
+     * @cover Phossa2\Route\Route::setDefault()
+     */
+    public function testSetDefault()
+    {
+        $res1 = ['a'=> 1, 'b'=> 2];
+        $this->object->setDefault($res1);
+        $this->assertEquals($res1, $this->object->getDefault());
+
+        $res2 = ['c' => 3];
+        $this->object->setDefault($res2);
+        $this->assertEquals(
+            ['a' => 1, 'b' => 2, 'c' => 3],
+            $this->object->getDefault()
+        );
+    }
+
+    /**
+     * Test getDefault (default values in pattern)
+     *
+     * @cover Phossa2\Route\Route::getDefault()
+     */
+    public function testGetDefault()
+    {
+        $this->object->setPattern('/user/{action:[^0-9/][^/]*=view}/{id:[0-9]+=12}');
+        $this->assertEquals(
+            ['action' => 'view', 'id' => '12'],
+            $this->object->getDefault()
+        );
     }
 }

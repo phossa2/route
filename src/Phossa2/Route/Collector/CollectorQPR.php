@@ -51,17 +51,6 @@ class CollectorQPR extends CollectorPPR
     protected $seperator = '-';
 
     /**
-     * Constructor
-     *
-     * @param  array $properties
-     * @access public
-     */
-    public function __construct(array $properties = [])
-    {
-        $this->setProperties($properties);
-    }
-
-    /**
      * Query Parameter Routing
      *
      * http://servername/path/?r=controller-action-id-1-name-nick
@@ -70,8 +59,9 @@ class CollectorQPR extends CollectorPPR
      */
     protected function match(ResultInterface $result)/*# : bool */
     {
-        if (isset($_REQUEST[$this->varname])) {
-            $parts = explode($this->seperator, $_REQUEST[$this->varname]);
+        $param = $result->getParameters();
+        if (isset($param[$this->varname])) {
+            $parts = explode($this->seperator, $param[$this->varname]);
             if (count($parts) > 1) {
                 return $this->processParts($parts, $result);
             }
