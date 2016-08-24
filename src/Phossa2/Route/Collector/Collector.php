@@ -1,0 +1,172 @@
+<?php
+/**
+ * Phossa Project
+ *
+ * PHP version 5.4
+ *
+ * @category  Library
+ * @package   Phossa2\Route
+ * @copyright Copyright (c) 2016 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
+ */
+/*# declare(strict_types=1); */
+
+namespace Phossa2\Route\Collector;
+
+use Phossa2\Route\Status;
+use Phossa2\Route\Message\Message;
+use Phossa2\Route\Parser\ParserGcb;
+use Phossa2\Route\Exception\LogicException;
+use Phossa2\Route\Interfaces\RouteInterface;
+use Phossa2\Route\Interfaces\ParserInterface;
+use Phossa2\Route\Interfaces\ResultInterface;
+
+/**
+ * Collector
+ *
+ * Regular Expression Routing (RER)
+ *
+ * @package Phossa2\Route
+ * @author  Hong Zhang <phossa@126.com>
+ * @see     CollectorAbstract
+ * @version 2.0.0
+ * @since   2.0.0 added
+ */
+class Collector extends CollectorAbstract
+{
+    /**
+     * pattern parser
+     *
+     * @var    ParserInterface
+     * @access protected
+     */
+    protected $parser;
+
+    /**
+     * routes
+     *
+     * @var    array
+     * @access protected
+     */
+    protected $routes = [];
+
+    /**
+     * Constructor
+     *
+     * @param  ParserInterface $parser
+     * @access public
+     * @api
+     */
+    public function __construct(ParserInterface $parser = null)
+    {
+        $this->parser = $parser ?: new ParserGcb();
+
+        if ($this->isDebugging()) {
+            $this->debug(Message::get(
+                Message::RTE_PARSER_ADD,
+                get_class($this),
+                get_class($this->parser)
+            ));
+            $this->delegateDebugger($this->parser);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addRoute(RouteInterface $route)
+    {
+        // generate unique key
+        $routeKey = $this->getRouteKey($route);
+
+        // parse pattern if not yet
+        if (!isset($this->routes[$routeKey])) {
+            $this->routes[$routeKey] = [];
+            $this->parser->processRoute($routeKey, $route->getPattern());
+        }
+
+        // related http methods
+        $methods = $route->getMethods();
+
+        // save routes
+        foreach ($methods as $method) {
+            // duplication found
+            if (isset($this->routes[$routeKey][$method])) {
+                throw new LogicException(
+                    Message::get(
+                        Message::RTE_ROUTE_DUPLICATED,
+                        $route->getPattern(),
+                        $method
+                    ), Message::RTE_ROUTE_DUPLICATED
+                );
+            }
+            $this->routes[$routeKey][$method] = $route;
+        }
+
+        // debug message
+        $this->debug(Message::get(
+            Message::RTE_ROUTE_ADDED, $route->getPattern(), join('|', $methods)
+        ));
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function match(ResultInterface $result)/*# : bool */
+    {
+        $res = $this->parser->matchRoute($result->getPath());
+        if ($res) {
+            list($routeKey, $params) = $res;
+            return $this->getRoute($result, $routeKey, $params);
+        }
+        return false;
+    }
+
+    /**
+     * Calculate route's unique key
+     *
+     * @param  RouteInterface $route
+     * @return string
+     * @access protected
+     */
+    protected function getRouteKey(RouteInterface $route)/*# : string */
+    {
+        return 'x' . substr(md5($route->getPattern()), -7);
+    }
+
+    /**
+     * Get matched route
+     *
+     * @param  ResultInterface $result
+     * @param  string $routeKey unique route key
+     * @param  array $matches matched parameters
+     * @return bool
+     * @access protected
+     */
+    protected function getRoute(
+        ResultInterface $result,
+        /*# string */ $routeKey,
+        array $matches
+    )/*# : bool */ {
+        $method = $result->getMethod();
+
+        // matched but method not allowed
+        if (!isset($this->routes[$routeKey][$method])) {
+            $result->setStatus(Status::METHOD_NOT_ALLOWED);
+            return false;
+        }
+
+        /* @var RouteInterface $route */
+        $route = $this->routes[$routeKey][$method];
+
+        $result->setStatus(Status::OK)
+               ->setRoute($route)
+               ->setParameter($matches)
+               ->setHandler($route->getHandler(Status::OK));
+
+        return true;
+    }
+}

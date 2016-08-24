@@ -1,0 +1,45 @@
+{
+    "name": "phossa2/route",
+    "license": "MIT",
+    "type": "library",
+    "description": "A fast and full-fleged routing library for PHP",
+    "keywords": ["route", "phossa"],
+    "homepage": "https://github.com/phossa2/route",
+    "authors": [
+        {
+            "name": "Hong Zhang",
+            "homepage": "https://github.com/phossa2"
+        }
+    ],
+    "require": {
+        "php": "~5.4|~7.0",
+        "phossa2/event": "^2.1.5",
+        "phossa2/shared": "^2.0.27"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.*"
+    },
+    "autoload": {
+        "psr-0": { "Phossa2\\Route\\": "src/" }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "format": "phpcbf --standard=psr2 src/"
+    },
+    "replace": {
+        "phossa/phossa-route": "*"
+    },
+    "config": {
+        "platform": {
+            "php": "5.4.0"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0-dev"
+        }
+    },
+    "archive": {
+        "exclude": [ "!vendor", "tests", "composer.lock" ]
+    }
+}
