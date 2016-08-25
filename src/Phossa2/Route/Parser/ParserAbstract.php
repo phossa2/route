@@ -68,6 +68,13 @@ abstract class ParserAbstract extends ObjectAbstract implements ParserInterface,
     ];
 
     /**
+     * @var    string
+     */
+    const MATCH_GROUP_NAME = "\s*([a-zA-Z][a-zA-Z0-9_]*)\s*";
+    const MATCH_GROUP_TYPE = ":\s*([^{}]*(?:\{(?-1)\}[^{}]*)*)";
+    const MATCH_SEGMENT = "[^/]++";
+
+    /**
      * Constructor
      *
      * @param  array $properties

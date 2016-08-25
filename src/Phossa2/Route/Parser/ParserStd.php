@@ -83,24 +83,13 @@ class ParserStd extends ParserAbstract
         /*# string */ $name,
         /*# string */ $pattern
     )/*# : string */ {
-        // regex
-        $groupname = "\s*([a-zA-Z][a-zA-Z0-9_]*)\s*";
-        $grouptype = ":\s*([^{}]*(?:\{(?-1)\}[^{}]*)*)";
-        $placeholder = sprintf("\{%s(?:%s)?\}", $groupname, $grouptype);
-        $segmenttype = "[^/]++";
-
+        $ph = sprintf("\{%s(?:%s)?\}", self::MATCH_GROUP_NAME, self::MATCH_GROUP_TYPE);
         $result = preg_replace([
-            '~' . $placeholder . '(*SKIP)(*FAIL) | \[~x',
-            '~' . $placeholder . '(*SKIP)(*FAIL) | \]~x',
-            '~\{' . $groupname . '\}~x',
-            '~' . $placeholder . '~x',
+            '~' . $ph . '(*SKIP)(*FAIL) | \[~x', '~' . $ph . '(*SKIP)(*FAIL) | \]~x',
+            '~\{' . self::MATCH_GROUP_NAME . '\}~x', '~' . $ph . '~x',
         ], [
-            '(?:',  // replace '['
-            ')?',   // replace ']'
-            '{\\1:' . $segmenttype . '}',   // add segementtype
-            '(?<${1}'. $name . '>${2})'   // replace groupname
+            '(?:', ')?', '{\\1:' . self::MATCH_SEGMENT . '}', '(?<${1}'. $name . '>${2})'
         ], strtr('/' . trim($pattern, '/'), $this->shortcuts));
-
         return empty($name) ? $result : ("(?<$name>" . $result . ")");
     }
 

@@ -99,32 +99,20 @@ class ParserGcb extends ParserAbstract
      */
     protected function convert(/*# string */ $pattern)/*# : array */
     {
-        // regex
-        $groupname = "\s*([a-zA-Z][a-zA-Z0-9_]*)\s*";
-        $grouptype = ":\s*([^{}]*(?:\{(?-1)\}[^{}]*)*)";
-        $placeholder = sprintf("\{%s(?:%s)?\}", $groupname, $grouptype);
-        $segmenttype = "[^/]++";
+        $ph = sprintf("\{%s(?:%s)?\}", self::MATCH_GROUP_NAME, self::MATCH_GROUP_TYPE);
 
         // count placeholders
         $map = $m = [];
-        if (preg_match_all('~'. $placeholder .'~x', $pattern, $m)) {
+        if (preg_match_all('~'. $ph .'~x', $pattern, $m)) {
             $map = $m[1];
         }
 
-        // full regex
-        $result = preg_replace(
-            [
-                '~' . $placeholder . '(*SKIP)(*FAIL) | \[~x',
-                '~' . $placeholder . '(*SKIP)(*FAIL) | \]~x',
-                '~\{' . $groupname . '\}~x',
-                '~' . $placeholder . '~x',
-            ], [
-                '(?:',  // replace '['
-                ')?',   // replace ']'
-                '{\\1:' . $segmenttype . '}',   // add segementtype
-                '(\\2)'                         // group it
-            ], strtr('/' . trim($pattern, '/'), $this->shortcuts)
-        );
+        $result = preg_replace([
+            '~' . $ph . '(*SKIP)(*FAIL) | \[~x', '~' . $ph . '(*SKIP)(*FAIL) | \]~x',
+            '~\{' . self::MATCH_GROUP_NAME . '\}~x', '~' . $ph . '~x',
+            ], ['(?:', ')?', '{\\1:' . self::MATCH_SEGMENT . '}', '(\\2)'],
+            strtr('/' . trim($pattern, '/'), $this->shortcuts));
+
         return [$result, $map];
     }
 

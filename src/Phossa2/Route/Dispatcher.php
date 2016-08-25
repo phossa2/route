@@ -133,17 +133,12 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
         /*# string */ $httpMethod,
         /*# string */ $uriPath
     )/*# : bool */ {
-        if ($this->match($httpMethod, $uriPath)) {
-            $param = ['result' => $this->result];
-            if ($this->trigger(self::EVENT_BEFORE_DISPATCH, $param) &&
-                $this->executeHandler() &&
-                $this->trigger(self::EVENT_AFTER_DISPATCH, $param)
-            ) {
-                return true;
-            }
+        // match & dispatch
+        if ($this->match($httpMethod, $uriPath) && $this->isDispatched()) {
+            return true;
         }
 
-        // execute default handler
+        // failed, execute default handler if any
         return $this->defaultHandler();
     }
 
@@ -195,6 +190,24 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
             if ($coll->matchRoute($this->result)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * Real dispatching process
+     *
+     * @return bool
+     * @access protected
+     */
+    protected function isDispatched()/*# : bool */
+    {
+        $param = ['result' => $this->result];
+        if ($this->trigger(self::EVENT_BEFORE_DISPATCH, $param) &&
+            $this->executeHandler() &&
+            $this->trigger(self::EVENT_AFTER_DISPATCH, $param)
+        ) {
+            return true;
         }
         return false;
     }
