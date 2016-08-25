@@ -238,9 +238,10 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
     {
         /* @var EventCapableAbstract $route */
         $route = $this->result->getRoute();
-        if ($route->trigger(Route::EVENT_BEFORE_HANDLER)) {
+        $param = ['result' => $this->result];
+        if ($route->trigger(Route::EVENT_BEFORE_HANDLER, $param)) {
             call_user_func($callable, $this->result);
-            $route->trigger(Route::EVENT_AFTER_HANDLER);
+            $route->trigger(Route::EVENT_AFTER_HANDLER, $param);
             return true;
         }
         $this->result->setHandler(null);

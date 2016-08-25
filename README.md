@@ -431,61 +431,150 @@ Extensions can be added to `Dispatcher`, `Collector` or even `Route`.
   $dispatcher->addRoute($route)->dispatch('GET', '/user/1000');
   ```
 
-  Statistics for a route collector,
+- **Extension events**
 
-  ```php
-  $collector->addExtension(
-      function($result) {
-          // collect statistics
-      },
-      Collector::BEFORE_COLL // before collector match
-  )->addExtension(
-      function($result) {
-          // collect statistics
-      },
-      Collector::AFTER_COLL // after a successful match
-  );
-  ```
+  Three types of events, dispatcher level, collector level and route level.
+  List of all events in the order of execution.
 
-- **Extension stages**
+  - `Dispatcher::EVENT_BEFORE_MATCH` before matching starts
 
-  Three types of stages, dispatcher level, collector level and route level. List
-  of all stages in the order of execution.
+    - `Collector::EVENT_BEFORE_MATCH` before matching in a collector
 
-  - `Dispatcher::BEFORE_MATCH` before matching starts
+    - `Collector::EVENT_AFTER_MATCH` after a successful match in the collector
 
-    - `Collector::BEFORE_COLL` before matching in a collector
+  - `Dispatcher::EVENT_AFTER_MATCH` after a successful match at dispatcher level
 
-    - `Collector::AFTER_COLL` after a successful match in the collector
+  - `Dispatcher::EVENT_BEFORE_DISPATCH` after a sucessful match, before
+    dispatching to any handler
 
-  - `Dispatcher::AFTER_MATCH` after a successful match at dispatcher level
+    - `Route::EVENT_BEFORE_HANDLER` before executing handler(route's or
+       collector's) for this route
 
-  - `Dispatcher::BEFORE_DISPATCH` after a sucessful match, before dispatching
-    to any handler
+    - `Route::EVENT_AFTER_HANDLER` after handler successfully executed
 
-    - `Route::BEFORE_ROUTE` before executing handler(route's or collector's) for
-       this route
-
-    - `Route::AFTER_ROUTE` after handler successfully executed
-
-  - `Dispatcher::AFTER_DISPATCH` back to dispatcher level, after handler
+  - `Dispatcher::EVENT_AFTER_DISPATCH` back to dispatcher level, after handler
     executed successfully
 
-  - `Dispatcher::BEFORE_DEFAULT` match failed or no handler found for the
+  - `Dispatcher::EVENT_BEFORE_HANDLER` match failed or no handler found for the
     matching route, before execute dispatcher's default handler
 
-  - `Dispatcher::AFTER_DEFAULT` after dispatcher's default handler executed
+  - `Dispatcher::EVENT_AFTER_HANDLER` after dispatcher's default handler
+    executed
 
-Features
+<a name="debug"></a>Debugging
 ---
 
-- <a name="anchor"></a>**Feature One**
+Sometimes, you need to know what went wrong.
 
+```php
+$dispatcher->enableDebug()->setDebugger($logger);
+```
 
-APIs
+Where `$logger` is a PSR-3 compatible logger implmenting the interface
+`Psr\Log\LoggerInterface`. The dispatcher will send logs of dispatching process
+to the logger.
+
+<a name="strategy"></a>Routing strategies
 ---
 
-- <a name="api"></a>`LoggerInterface` related
+There are a couple of URL based routing strategies supported in this library.
+Different strategy collectors can be combined together into one dispatcher.
+
+- <a name="ppr"></a>**Parameter Pairs Routing (PPR)**
+
+  Using parameter and value pairs for routing,
+
+  ```
+  http://servername/path/index.php/controller/action/id/1/name/nick
+  ```
+
+  Parameters order can be arbitary, but have to appear in pairs. Advantage of
+  this scheme is fast and web crawler friendly. If URL rewriting is used, the
+  above can be written into the following,
+
+  ```
+  http://servername/path/controller/action/id/1/name/nick
+  ```
+
+  Instead of using '/' as the parameter seperator, any URL valid characters
+  except for the '?' and '&' can be used as a seperator.
+
+  ```
+  http://servername/path/controller-action-id-1-name-nick
+  ```
+
+  This strategy is implemented in `Phossa\Route\Collector\CollectorPPR` class.
+
+- **Query Parameter Routing (QPR)**
+
+  The routing info is directly embedded in the URL query. The advantage of this
+  scheme is fast and clear.
+
+  ```
+  http://servername/path/?r=controller-action-id-1-name-nick
+  ```
+
+  This strategy is implemented in `Phossa\Route\Collector\CollectorQPR` class.
+
+- **Regular Expression Routing (RER)**
+
+  Regular expression based routing is the default routing strategy for this
+  library and implemented in `Phossa\Route\Collector\Collector` class.
+
+  ```php
+  // created with default RER collector
+  $dispatcher = (new Dispatcher())
+      ->addCollector(new Collector())     // regex based routing first
+      ->addCollector(new CollectorQPR()); // support for legacy QPR
+  ```
+
+<a name="algorithm"></a>Regex matching algorithms
+---
+
+Different regex matching algorithms can be used with the RER collector.
+
+- <a name="fastroute"></a>**FastRoute algorithm**
+
+  This *Group Count Based algorithm* is implemented in
+  `Phossa2\Route\Regex\ParserGcb` class and explained in  detail in this article
+  ["Fast request routing using regular expressions"](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html).
+
+  phossa-route uses this algorithm by default.
+
+- **Standard algorithm**
+
+  This algorithm is developed by phossa2/route and a little bit slower than the
+  fastRoute GCB algorithm. It is implemented in `Phossa2\Route\Regex\ParserStd`
+  class.
+
+  Use this standard algorithm,
+
+  ```php
+  use Phossa2\Route\Dispatcher;
+  use Phossa2\Route\Parser\ParserStd;
+  use Phossa2\Route\Collector\Collector;
+
+  // use standard algorithm
+  $dispatcher = new Dispatcher(new Collector(new ParserStd));
+  ```
+
+- **Comments on routing algorithms**
+
+  - It does **NOT** matter that much as you may think.
+
+    If you are using routing library in your application, different algorithms
+    may differ only 0.1 - 0.2ms for a single request, which seems meaningless
+    for an application unless you are using it as a standalone router.
+
+  - If you **DO** care about routing speed
+
+    Use different routing strategy like [*Parameter Pairs Routing (PPR)*](#ppr)
+    which is [much faster](#performance) than the regex based routing. Also by
+    carefully design your routes, you may achieve better results even if you
+    are using a *slower* algorithm.
+
+  - Try [network routing or server routing](#issue) if you just **CRAZY ABOUT
+    THE SPEED**.
 
 Change log
 ---
@@ -511,9 +600,158 @@ Dependencies
 
 - phossa2/event >= 2.1.5
 
-- phossa2/shared >= 2.0.25
+- phossa2/shared >= 2.0.27
 
 License
 ---
 
 [MIT License](http://mit-license.org/)
+
+Appendix
+---
+
+- <a name="performance"></a>**Performance**
+
+  - Worst-case matching
+
+    This benchmark matches the last route and unknown route. It generates a
+    randomly prefixed and suffixed route in an attempt to thwart any optimization.
+    1,000 routes each with 8 arguments.
+
+    This benchmark consists of 14 tests. Each test is executed 1,000 times, the
+    results pruned, and then averaged. Values that fall outside of 3 standard
+    deviations of the mean are discarded.
+
+    ["Parameter Pairs Routing (PPR)"](#ppr) is fastest and used as baseline.
+
+    Test Name | Results | Time | + Interval | Change
+    --------- | ------- | ---- | ---------- | ------
+    Phossa PPR - unknown route (1000 routes) | 998 | 0.0000724551 | +0.0000000000 | baseline
+    Phossa PPR - last route (1000 routes) | 993 | 0.0000925307 | +0.0000200755 | 28% slower
+    Symfony2 Dumped - unknown route (1000 routes) | 998 | 0.0004353616 | +0.0003629065 | 501% slower
+    Phroute - last route (1000 routes) | 999 | 0.0006205601 | +0.0005481050 | 756% slower
+    Phossa - unknown route (1000 routes) | 998 | 0.0006903790 | +0.0006179239 | 853% slower
+    FastRoute - unknown route (1000 routes) | 1,000 | 0.0006911943 | +0.0006187392 | 854% slower
+    FastRoute - last route (1000 routes) | 999 | 0.0006962751 | +0.0006238200 | 861% slower
+    Phroute - unknown route (1000 routes) | 998 | 0.0007134676 | +0.0006410125 | 885% slower
+    Symfony2 Dumped - last route (1000 routes) | 993 | 0.0008066097 | +0.0007341545 | 1013% slower
+    Phossa - last route (1000 routes) | 998 | 0.0009104498 | +0.0008379947 | 1157% slower
+    Symfony2 - unknown route (1000 routes) | 989 | 0.0023998006 | +0.0023273455 | 3212% slower
+    Symfony2 - last route (1000 routes) | 999 | 0.0025880890 | +0.0025156339 | 3472% slower
+    Aura v2 - last route (1000 routes) | 981 | 0.0966411463 | +0.0965686912 | 133281% slower
+    Aura v2 - unknown route (1000 routes) | 992 | 0.1070026719 | +0.1069302168 | 147581% slower
+
+  - First route matching
+
+    This benchmark tests how quickly each router can match the first route. 1,000
+    routes each with 8 arguments.
+
+    This benchmark consists of 7 tests. Each test is executed 1,000 times, the
+    results pruned, and then averaged. Values that fall outside of 3 standard
+    deviations of the mean are discarded.
+
+    **Note** Both *FastRoute* and *Phroute* implement a static route table, so
+    they are fast at the first route matching (which is a static route)
+
+    Test Name | Results | Time | + Interval | Change
+    --------- | ------- | ---- | ---------- | ------
+    FastRoute - first route | 999 | 0.0000403543 | +0.0000000000 | baseline
+    Phroute - first route | 998 | 0.0000405911 | +0.0000002368 | 1% slower
+    Symfony2 Dumped - first route | 999 | 0.0000590617 | +0.0000187074 | 46% slower
+    Phossa PPR - first route | 977 | 0.0000678727 | +0.0000275184 | 68% slower
+    Phossa - first route | 999 | 0.0000898475 | +0.0000494932 | 123% slower
+    Symfony2 - first route | 998 | 0.0003983802 | +0.0003580259 | 887% slower
+    Aura v2 - first route | 986 | 0.0004391784 | +0.0003988241 | 988% slower
+
+- **URL rewrite**
+
+  Setup URL rewriting to do routing with `index.php`
+
+  - Apache `.htaccess` with `mod_rewrite` engine is on
+
+    ```
+    DirectorySlash Off
+    Options -MultiViews
+    DirectoryIndex index.php
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-l
+    RewriteRule ^ index.php [QSA,L]
+    ```
+
+    and in your `httpd.conf` file to enable using of `.htaccess`
+
+    ```
+    <VirtualHost *:80>
+      ServerAdmin me@mysite.com
+      DocumentRoot "/path/www.mysite.com/public"
+      ServerName mysite.com
+      ServerAlias www.mysite.com
+
+      <Directory "/path/www.mysite.com/public">
+        Options -Indexes +FollowSymLinks +Includes
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+      </Directory>
+    </VirtualHost>
+    ```
+
+  - Nginx configration in `nginx.conf`
+
+    ```
+    server {
+        listen       80;
+        server_name  www.mysite.com mysite.com;
+        root         /path/www.mysite.com/public;
+
+        try_files $uri $uri/ /index.php$is_args$args;
+
+        location /index.php {
+            fastcgi_connect_timeout 3s;
+            fastcgi_read_timeout 10s;
+            include fastcgi.conf;
+            fastcgi_pass 127.0.0.1:9000;
+        }
+    }
+    ```
+
+- <a name="issue"></a>**Routing issues**
+
+  Base on the request informations, such as request device, source ip, request
+  method etc., service provider may direct request to different hosts, servers,
+  app modules or handlers.
+
+  - *Network level routing*
+
+    Common case, such as routing based on request's source ip, routes the
+    request to a *NEAREST* server, this is common in content distribution
+    network (CDN), and is done at network level.
+
+  - *Web server routing*
+
+    For performance reason, some of the simple routing can be done at web
+    server level, such as using apache or ngix configs to do simple routing.
+
+    For example, if your server goes down for maintenance, you may replace
+    the `.htaccess` file as follows,
+
+    ```
+    DirectorySlash Off
+    Options -MultiViews
+    DirectoryIndex maintenance.php
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-l
+    RewriteRule ^ maintenance.php [QSA,L]
+    ```
+
+  - *App level routing*
+
+    It solves much more complicated issues, and much more flexible.
+
+    Usually, routing is done at a single point `index.php`. All the requests
+    are configured to be handled by this script first and routed to different
+    routines.

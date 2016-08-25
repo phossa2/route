@@ -9,6 +9,7 @@ use Phossa2\Route\Collector\CollectorPPR;
 use Phossa2\Route\Extension\RedirectToHttps;
 use Phossa2\Route\Extension\UserAuth;
 use Phossa2\Route\Extension\IdValidation;
+use Phossa2\Route\Extension\CollectorStats;
 
 /**
  * Dispatcher test case.
@@ -423,7 +424,6 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
      */
     public function testDispatch18()
     {
-        /*
         $dispatcher = (new Dispatcher())->addHandler(function($result) {
             $params = $result->getParameters();
             echo "invalid id " . $params['id'];
@@ -437,7 +437,24 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
         // will fail
         $dispatcher->addRoute($route)->dispatch('GET', '/user/1000');
-        */
+    }
+
+    /**
+     * README example 10, stats on a collector
+     *
+     * @covers Phossa2\Route\Dispatcher::dispatch()
+     */
+    public function testDispatch19()
+    {
+        // add ext to collector
+        $col = (new Collector())->addExtension(new CollectorStats());
+
+        $dispatcher = (new Dispatcher($col))->addGet('/user/{id:d}', null);
+
+        $this->expectOutputString("Total 2 Matched 1 (50.0%)");
+        $dispatcher->dispatch('GET', '/user/1000');
+        $dispatcher->dispatch('GET', '/article/1500');
+        $col->getStats();
     }
 }
 
