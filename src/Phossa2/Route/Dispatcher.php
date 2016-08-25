@@ -200,6 +200,8 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
     /**
      * Execute handler of the result
      *
+     * IF HANDLER NOT EXECUTED, REMOVE IT !!
+     *
      * @return bool true if handler executed
      * @access protected
      */
@@ -216,12 +218,15 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
                 return true;
             }
         } catch (\Exception $e) {
+            $this->result->setHandler(null);
             return false;
         }
     }
 
     /**
      * Execute the callable with route events
+     *
+     * IF HANDLER NOT EXECUTED, REMOVE IT !!
      *
      * @param  callable $callable
      * @return bool true if callable executed
@@ -236,11 +241,12 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
             $route->trigger(Route::EVENT_AFTER_HANDLER);
             return true;
         }
+        $this->result->setHandler(null);
         return false;
     }
 
     /**
-     * Execute defaul handler found
+     * Execute dispatcher level handler
      *
      * @return bool
      * @access protected
@@ -252,8 +258,9 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
 
         if ($handler) {
             $param = ['result' => $this->result];
+            $callable = $this->getResolver()->resolve($handler);
             if ($this->trigger(self::EVENT_BEFORE_HANDLER, $param)) {
-                call_user_func($handler, $this->result);
+                call_user_func($callable, $this->result);
                 $this->trigger(self::EVENT_AFTER_HANDLER, $param);
             }
         }

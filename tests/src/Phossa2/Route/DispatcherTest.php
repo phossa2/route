@@ -5,6 +5,7 @@ namespace Phossa2\Route;
 use Phossa2\Route\Collector\Collector;
 use Phossa2\Route\Resolver\ResolverSimple;
 use Phossa2\Route\Parser\ParserStd;
+use Phossa2\Route\Collector\CollectorPPR;
 
 /**
  * Dispatcher test case.
@@ -188,6 +189,33 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         // create result by default
         $this->object->match('GET', '/user/xyz');
         $this->assertEquals('/user/xyz', $this->object->getResult()->getPath());
+    }
+
+    /**
+     * Test multiple collectors
+     *
+     * @covers Phossa2\Route\Dispatcher::addCollector()
+     */
+    public function testAddCollector()
+    {
+        $obj = (new Dispatcher())->addHandler(function(Result $result) {
+            echo $result->getPath();
+        }, 0);
+
+        $col1 = (new Collector())->addRoute(
+            new Route('GET', '/user[/{name:xd}]', function(Result $result) {
+                $params = $result->getParameters();
+                echo sprintf("%d: USER '%s'", $result->getStatus(), $params['name']);
+                return true;
+            })
+        );
+        $col2 = new CollectorPPR();
+
+        $obj->addCollector($col1)->addCollector($col2);
+
+        $this->expectOutputString("200: USER 'phossa'/controller/action/id/1/name/nick");
+        $obj->dispatch('GET', '/user/phossa');
+        $obj->dispatch('GET', '/controller/action/id/1/name/nick?a=b');
     }
 }
 

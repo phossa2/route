@@ -87,19 +87,15 @@ class Collector extends CollectorAbstract
             $this->parser->processRoute($routeKey, $route->getPattern());
         }
 
-        // save route
-        foreach ($route->getMethods() as $method) {
+        $methods = $route->getMethods();
+        foreach ($methods as $method) {
             $this->checkDuplication($route, $routeKey, $method);
             $this->routes[$routeKey][$method] = $route;
         }
 
-        // debug message
         $this->debug(Message::get(
-            Message::RTE_ROUTE_ADDED,
-            $route->getPattern(),
-            join('|', $route->getMethods())
+            Message::RTE_ROUTE_ADDED, $route->getPattern(), join('|', $methods)
         ));
-
         return $this;
     }
 
@@ -177,13 +173,10 @@ class Collector extends CollectorAbstract
         $route = $this->routes[$routeKey][$method];
 
         $this->debug(Message::get(
-            Message::RTE_ROUTE_MATCHED,
-            $result->getPath(),
-            $route->getPattern()
+            Message::RTE_ROUTE_MATCHED, $result->getPath(), $route->getPattern()
         ));
 
-        $result->setStatus(Status::OK)
-            ->setRoute($route)
+        $result->setStatus(Status::OK)->setRoute($route)
             ->setParameters(array_replace($route->getDefault(), $matches))
             ->setHandler($route->getHandler(Status::OK));
 
