@@ -48,5 +48,5 @@ interface ParserInterface
      * @return array|false [ $routeName, $matchedParams ] or false
      * @access public
      */
-    public function matchRoute(/*# string */ $uriPath);
+    public function matchPath(/*# string */ $uriPath);
 }

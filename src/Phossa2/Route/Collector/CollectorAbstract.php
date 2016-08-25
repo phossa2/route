@@ -73,16 +73,12 @@ abstract class CollectorAbstract extends EventCapableAbstract implements Collect
     {
         $res = false;
         $param = ['result' => $result];
+
         if ($this->trigger(self::EVENT_BEFORE_MATCH, $param) &&
             $this->match($result) &&
             $this->trigger(self::EVENT_AFTER_MATCH, $param)
         ) {
             $res = true;
-            $this->debug(Message::get(
-                Message::RTE_ROUTE_MATCHED,
-                $result->getPath(),
-                $result->getRoute()->getPattern()
-            ));
         }
 
         $this->setCollectorHandler($result);

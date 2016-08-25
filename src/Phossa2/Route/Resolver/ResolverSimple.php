@@ -34,22 +34,72 @@ use Phossa2\Route\Interfaces\ResolverInterface;
 class ResolverSimple extends ObjectAbstract implements ResolverInterface
 {
     /**
+     * @var    string
+     * @access protected
+     */
+    protected $controller_suffix = 'Controller';
+
+    /**
+     * @var    string
+     * @access protected
+     */
+    protected $action_suffix = 'Action';
+
+    /**
+     * Namespaces for controllers
+     *
+     * @var    string[]
+     * @access protected
+     */
+    protected $namespaces = [];
+
+    /**
+     * @param  array $properties
+     * @access public
+     */
+    public function __construct(array $properties = [])
+    {
+        $this->setProperties($properties);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function resolve($handler)/*# : callable */
     {
         if (is_callable($handler)) {
             return $handler;
-        } elseif (is_array($handler)) {
-            $controller = $handler[0] . 'Controller';
-            $action = $handler[1] . 'Action';
-            $result = [$controller, $action];
-            if (is_callable($result)) {
-                return $result;
-            }
+        } elseif (is_array($handler) && isset($handler[1])) {
+            return $this->searchController($handler[0], $handler[1]);
         }
         throw new LogicException(
             Message::get(Message::RTE_HANDLER_UNKNOWN, $handler),
+            Message::RTE_HANDLER_UNKNOWN
+        );
+    }
+
+    /**
+     * Search controller base on the name
+     *
+     * @param  string $controller
+     * @param  string $action
+     * @return callable
+     * @throws LogicException if not found
+     * @access protected
+     */
+    protected function searchController(
+        /*# string */ $controller,
+        /*# string */ $action
+    )/*# : callable */ {
+        foreach ($this->namespaces as $ns) {
+            $class = $ns . '\\' . $controller . $this->controller_suffix;
+            if (class_exists($class)) {
+                $obj = new $class();
+                return [$obj, $action . $this->action_suffix];
+            }
+        }
+        throw new LogicException(
+            Message::get(Message::RTE_HANDLER_UNKNOWN, $controller),
             Message::RTE_HANDLER_UNKNOWN
         );
     }

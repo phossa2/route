@@ -77,7 +77,7 @@ class ParserGcb extends ParserAbstract
     /**
      * {@inheritDoc}
      */
-    public function matchRoute(/*# string */ $uriPath)
+    public function matchPath(/*# string */ $uriPath)
     {
         $matches = [];
         foreach ($this->getRegexData() as $i => $regex) {

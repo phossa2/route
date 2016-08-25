@@ -65,6 +65,8 @@ trait HandlerAwareTrait
     {
         if (isset($this->handlers[(int) $status])) {
             return $this->handlers[(int) $status];
+        } elseif (isset($this->handlers[0])) {
+            return $this->handlers[0];
         }
         return null;
     }

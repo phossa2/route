@@ -42,6 +42,9 @@ interface HandlerAwareInterface
     /**
      * Get route handler for this status code
      *
+     * if handler is set for status: 0, then this handler will be used if no
+     * handler found for $status !!
+     *
      * @param  int $status http status
      * @return mixed
      * @access public

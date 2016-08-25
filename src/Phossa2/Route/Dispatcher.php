@@ -58,9 +58,6 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
      * @const
      */
 
-    // just before finishing instantiation
-    const EVENT_INIT = 'dispatcher.init';
-
     // before any matching starts
     const EVENT_BEFORE_MATCH = 'dispatcher.match.before';
 
@@ -106,8 +103,6 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
         if ($resolver) {
             $this->setResolver($resolver);
         }
-
-        $this->trigger(self::EVENT_INIT);
     }
 
     /**
@@ -145,7 +140,9 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
                 return true;
             }
         }
-        return $this->dispatcherDefaultHandler();
+
+        // execute default handler
+        return $this->defaultHandler();
     }
 
     /**
@@ -203,63 +200,62 @@ class Dispatcher extends EventCapableAbstract implements DispatcherInterface, Ha
     /**
      * Execute handler of the result
      *
-     * @return bool
+     * @return bool true if handler executed
      * @access protected
      */
     protected function executeHandler()/*# : bool */
     {
         try {
-            // resolve callable
             $handler = $this->result->getHandler();
             $callable = $this->getResolver()->resolve($handler);
-            if (!is_callable($callable)) {
-                return false;
+
+            if ($this->result->getRoute()) {
+                return $this->callableWithRoute($callable);
+            } else {
+                call_user_func($callable, $this->result);
+                return true;
             }
-            return $this->runRouteCallable($callable);
         } catch (\Exception $e) {
             return false;
         }
     }
 
     /**
-     * Execute the callable
+     * Execute the callable with route events
      *
      * @param  callable $callable
-     * @return bool
+     * @return bool true if callable executed
      * @access protected
      */
-    protected function runRouteCallable(callable $callable)/*# : bool */
+    protected function callableWithRoute(callable $callable)/*# : bool */
     {
-        $route = $this->result->getRoute();
-        if (!$route) {
-            return call_user_func($callable, $this->result);
-        }
-
         /* @var EventCapableAbstract $route */
-        if ($route->trigger(Route::EVENT_BEFORE_HANDLER) &&
-            call_user_func($callable, $this->result) &&
-            $route->trigger(Route::EVENT_AFTER_HANDLER)
-        ) {
+        $route = $this->result->getRoute();
+        if ($route->trigger(Route::EVENT_BEFORE_HANDLER)) {
+            call_user_func($callable, $this->result);
+            $route->trigger(Route::EVENT_AFTER_HANDLER);
             return true;
         }
         return false;
     }
 
     /**
-     * Execute dispatcher-level default handler
+     * Execute defaul handler found
      *
      * @return bool
      * @access protected
      */
-    protected function dispatcherDefaultHandler()/*# : bool */
+    protected function defaultHandler()/*# : bool */
     {
-        $param = ['result' => $this->result];
-        if ($this->trigger(self::EVENT_BEFORE_DEFAULT, $param)) {
-            $handler = $this->getHandler($this->result->getStatus());
-            if ($handler) {
+        $status = $this->result->getStatus();
+        $handler = $this->result->getHandler() ?: $this->getHandler($status);
+
+        if ($handler) {
+            $param = ['result' => $this->result];
+            if ($this->trigger(self::EVENT_BEFORE_HANDLER, $param)) {
                 call_user_func($handler, $this->result);
+                $this->trigger(self::EVENT_AFTER_HANDLER, $param);
             }
-            $this->trigger(self::EVENT_AFTER_DEFAULT, $param);
         }
         return false;
     }

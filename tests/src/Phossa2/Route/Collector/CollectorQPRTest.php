@@ -1,0 +1,80 @@
+<?php
+
+namespace Phossa2\Route\Collector;
+
+use Phossa2\Route\Route;
+use Phossa2\Route\Result;
+use Phossa2\Route\Status;
+
+/**
+ * CollectorQPR test case.
+ */
+class CollectorQPRTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @var CollectorQPR
+     */
+    private $object;
+
+    /**
+     * Prepares the environment before running a test.
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->object = new CollectorQPR();
+    }
+
+    /**
+     * Cleans up the environment after running a test.
+     */
+    protected function tearDown()
+    {
+        $this->object = null;
+        parent::tearDown();
+    }
+
+    /**
+     * Tests CollectorQPR->addRoute()
+     *
+     * @covers Phossa2\Route\Collector\CollectorQPR::addRoute()
+     * @expectedException Phossa2\Route\Exception\LogicException
+     * @expectedExceptionCode Phossa2\Route\Message\Message::RTE_ROUTE_DISALLOWED
+     */
+    public function testAddRoute()
+    {
+        $this->object->addRoute(new Route('GET', '/user', 2));
+    }
+
+    /**
+     * test parameter capture
+     *
+     * @covers Phossa2\Route\Collector\CollectorQPR::matchRoute
+     */
+    public function testMatchRoute1()
+    {
+        $result = new Result('GET', '/path/?r=controller-action-id-1-name-nick');
+
+        if ($this->object->matchRoute($result)) {
+            $this->assertEquals(Status::OK, $result->getStatus());
+            $param = $result->getParameters();
+            $this->assertEquals('1', $param['id']);
+            $this->assertEquals('nick', $param['name']);
+            $this->assertEquals(['controller', 'action'], $result->getHandler());
+        } else {
+            throw new \Exception('bad');
+        }
+    }
+
+    /**
+     * Bad result
+     *
+     * @covers Phossa2\Route\Collector\CollectorQPR::matchRoute
+     */
+    public function testMatchRoute2()
+    {
+        $result = new Result('GET', '/path/?r=controller-action-id-1-name');
+        $this->assertFalse($this->object->matchRoute($result));
+        $this->assertEquals(Status::BAD_REQUEST, $result->getStatus());
+    }
+}

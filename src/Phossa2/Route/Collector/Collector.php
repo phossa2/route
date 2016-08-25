@@ -133,7 +133,7 @@ class Collector extends CollectorAbstract
      */
     protected function match(ResultInterface $result)/*# : bool */
     {
-        $res = $this->parser->matchRoute($result->getPath());
+        $res = $this->parser->matchPath($result->getPath());
         if ($res) {
             list($routeKey, $params) = $res;
             return $this->getRoute($result, $routeKey, $params);
@@ -168,8 +168,6 @@ class Collector extends CollectorAbstract
         array $matches
     )/*# : bool */ {
         $method = $result->getMethod();
-
-        // matched but method not allowed
         if (!isset($this->routes[$routeKey][$method])) {
             $result->setStatus(Status::METHOD_NOT_ALLOWED);
             return false;
@@ -178,10 +176,16 @@ class Collector extends CollectorAbstract
         /* @var RouteInterface $route */
         $route = $this->routes[$routeKey][$method];
 
+        $this->debug(Message::get(
+            Message::RTE_ROUTE_MATCHED,
+            $result->getPath(),
+            $route->getPattern()
+        ));
+
         $result->setStatus(Status::OK)
-               ->setRoute($route)
-               ->setParameters(array_replace($route->getDefault(), $matches))
-               ->setHandler($route->getHandler(Status::OK));
+            ->setRoute($route)
+            ->setParameters(array_replace($route->getDefault(), $matches))
+            ->setHandler($route->getHandler(Status::OK));
 
         return true;
     }
