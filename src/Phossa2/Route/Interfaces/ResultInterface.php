@@ -79,7 +79,7 @@ interface ResultInterface
     /**
      * Set handler
      *
-     * @param  callable|array $handler
+     * @param  mixed $handler
      * @return $this
      * @access public
      */
@@ -88,7 +88,7 @@ interface ResultInterface
     /**
      * Get the handler (or pseudo callable)
      *
-     * @return callable|array|null
+     * @return mixed
      * @access public
      */
     public function getHandler();

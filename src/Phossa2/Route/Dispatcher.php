@@ -14,23 +14,25 @@
 
 namespace Phossa2\Route;
 
+use Phossa2\Route\Collector\Collector;
 use Phossa2\Route\Traits\AddRouteTrait;
 use Phossa2\Event\EventCapableAbstract;
 use Phossa2\Shared\Debug\DebuggableTrait;
 use Phossa2\Route\Traits\HandlerAwareTrait;
 use Phossa2\Route\Traits\ResolverAwareTrait;
 use Phossa2\Route\Interfaces\RouteInterface;
+use Phossa2\Route\Interfaces\ResultInterface;
 use Phossa2\Route\Traits\CollectorAwareTrait;
 use Phossa2\Shared\Debug\DebuggableInterface;
 use Phossa2\Route\Interfaces\ResolverInterface;
 use Phossa2\Route\Interfaces\AddRouteInterface;
 use Phossa2\Route\Interfaces\CollectorInterface;
 use Phossa2\Route\Interfaces\DispatcherInterface;
+use Phossa2\Shared\Extension\ExtensionAwareTrait;
 use Phossa2\Route\Interfaces\HandlerAwareInterface;
 use Phossa2\Route\Interfaces\ResolverAwareInterface;
 use Phossa2\Route\Interfaces\CollectorAwareInterface;
-use Phossa2\Route\Collector\Collector;
-use Phossa2\Route\Interfaces\ResultInterface;
+use Phossa2\Shared\Extension\ExtensionAwareInterface;
 
 /**
  * Dispatcher
@@ -48,9 +50,9 @@ use Phossa2\Route\Interfaces\ResultInterface;
  * @version 2.0.0
  * @since   2.0.0 added
  */
-class Dispatcher extends EventCapableAbstract implements DispatcherInterface, HandlerAwareInterface, CollectorAwareInterface, ResolverAwareInterface, AddRouteInterface, DebuggableInterface
+class Dispatcher extends EventCapableAbstract implements DispatcherInterface, HandlerAwareInterface, CollectorAwareInterface, ResolverAwareInterface, AddRouteInterface, ExtensionAwareInterface, DebuggableInterface
 {
-    use HandlerAwareTrait, CollectorAwareTrait, ResolverAwareTrait, AddRouteTrait, DebuggableTrait;
+    use HandlerAwareTrait, CollectorAwareTrait, ResolverAwareTrait, AddRouteTrait, ExtensionAwareTrait, DebuggableTrait;
 
     /**#@+
      * Dispatcher level events

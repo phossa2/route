@@ -23,7 +23,9 @@ use Phossa2\Route\Traits\HandlerAwareTrait;
 use Phossa2\Shared\Debug\DebuggableInterface;
 use Phossa2\Route\Interfaces\ResultInterface;
 use Phossa2\Route\Interfaces\CollectorInterface;
+use Phossa2\Shared\Extension\ExtensionAwareTrait;
 use Phossa2\Route\Interfaces\HandlerAwareInterface;
+use Phossa2\Shared\Extension\ExtensionAwareInterface;
 
 /**
  * CollectorAbstract
@@ -37,9 +39,9 @@ use Phossa2\Route\Interfaces\HandlerAwareInterface;
  * @version 2.0.0
  * @since   2.0.0 added
  */
-abstract class CollectorAbstract extends EventCapableAbstract implements CollectorInterface, HandlerAwareInterface, DebuggableInterface
+abstract class CollectorAbstract extends EventCapableAbstract implements CollectorInterface, HandlerAwareInterface, ExtensionAwareInterface, DebuggableInterface
 {
-    use HandlerAwareTrait, DebuggableTrait, AddRouteTrait;
+    use HandlerAwareTrait, ExtensionAwareTrait, DebuggableTrait, AddRouteTrait;
 
     /**#@+
      * Collector level events

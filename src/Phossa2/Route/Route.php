@@ -19,7 +19,9 @@ use Phossa2\Event\EventCapableAbstract;
 use Phossa2\Route\Exception\LogicException;
 use Phossa2\Route\Traits\HandlerAwareTrait;
 use Phossa2\Route\Interfaces\RouteInterface;
+use Phossa2\Shared\Extension\ExtensionAwareTrait;
 use Phossa2\Route\Interfaces\HandlerAwareInterface;
+use Phossa2\Shared\Extension\ExtensionAwareInterface;
 
 /**
  * Route
@@ -32,9 +34,9 @@ use Phossa2\Route\Interfaces\HandlerAwareInterface;
  * @version 2.0.0
  * @since   2.0.0 added
  */
-class Route extends EventCapableAbstract implements RouteInterface, HandlerAwareInterface
+class Route extends EventCapableAbstract implements RouteInterface, HandlerAwareInterface, ExtensionAwareInterface
 {
-    use HandlerAwareTrait;
+    use HandlerAwareTrait, ExtensionAwareTrait;
 
     /**#@+
      * Route related events

@@ -171,15 +171,14 @@ class Collector extends CollectorAbstract
 
         /* @var RouteInterface $route */
         $route = $this->routes[$routeKey][$method];
+        $result
+            ->setStatus(Status::OK)->setRoute($route)
+            ->setParameters(array_replace($route->getDefault(), $matches))
+            ->setHandler($route->getHandler(Status::OK));
 
         $this->debug(Message::get(
             Message::RTE_ROUTE_MATCHED, $result->getPath(), $route->getPattern()
         ));
-
-        $result->setStatus(Status::OK)->setRoute($route)
-            ->setParameters(array_replace($route->getDefault(), $matches))
-            ->setHandler($route->getHandler(Status::OK));
-
         return true;
     }
 }
