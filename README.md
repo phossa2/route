@@ -368,6 +368,11 @@ Extensions can be added to `Dispatcher`, `Collector` or even `Route`.
   Extensions **MUST** return a boolean value to indicate wether to proceed with
   the dispatching process or not. `FALSE` means stop and returns to top level.
 
+  Extensions can be either a `Phossa2\Event\EventableExtensionAbstract` and added
+  with `addExtension()` or `addExt()`, or a callable with signature of
+  `callableName(Phossa2\Event\EventInterface $event): bool` which can be added
+  as extension via `addExt(callable, eventName, priority)`.
+
   ```php
   use Phossa2\Route\Status;
   use Phossa2\Route\Dispatcher;
@@ -395,19 +400,32 @@ Extensions can be added to `Dispatcher`, `Collector` or even `Route`.
   $dispatcher = new Dispatcher();
 
   $dispatcher
-    ->addExtension(new UserAuth())
+    // add handler for unauthorized routing
     ->addHandler(
         function() {
             echo "need auth";
         }, Status::UNAUTHORIZED)
+
+    // add a route
     ->addGet('/user/view/{id:d}', function() {
             echo "AUTHED!";
-        });
+        })
 
-  // not authed
+    // add extension to force auth routes under '/user/'
+    ->addExt(function($event) {
+            $result = $event->getParam('result');
+            $path = $result->getPath();
+            if (!isset($_SESSION['authed']) && '/user/' === substr($path, 0, 6)) {
+                $result->setStatus(Status::UNAUTHORIZED);
+                return false;
+            }
+            return true;
+        }, Dispatcher::EVENT_BEFORE_MATCH);
+
+  // try a not authed route
   $dispatcher->dispatch('GET', '/user/view/123');
 
-  // authed
+  // try a authed route
   $_SESSION['authed'] = 1;
   $dispatcher->dispatch('GET', '/user/view/123');
   ```

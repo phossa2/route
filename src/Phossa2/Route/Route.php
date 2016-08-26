@@ -15,28 +15,26 @@
 namespace Phossa2\Route;
 
 use Phossa2\Route\Message\Message;
-use Phossa2\Event\EventCapableAbstract;
 use Phossa2\Route\Exception\LogicException;
 use Phossa2\Route\Traits\HandlerAwareTrait;
 use Phossa2\Route\Interfaces\RouteInterface;
-use Phossa2\Shared\Extension\ExtensionAwareTrait;
 use Phossa2\Route\Interfaces\HandlerAwareInterface;
-use Phossa2\Shared\Extension\ExtensionAwareInterface;
+use Phossa2\Event\EventableExtensionCapableAbstract;
 
 /**
  * Route
  *
  * @package Phossa2\Route
  * @author  Hong Zhang <phossa@126.com>
- * @see     EventCapableAbstract
+ * @see     EventableExtensionCapableAbstract
  * @see     RouteInterface
  * @see     HandlerAwareInterface
  * @version 2.0.0
  * @since   2.0.0 added
  */
-class Route extends EventCapableAbstract implements RouteInterface, HandlerAwareInterface, ExtensionAwareInterface
+class Route extends EventableExtensionCapableAbstract implements RouteInterface, HandlerAwareInterface
 {
-    use HandlerAwareTrait, ExtensionAwareTrait;
+    use HandlerAwareTrait;
 
     /**#@+
      * Route related events

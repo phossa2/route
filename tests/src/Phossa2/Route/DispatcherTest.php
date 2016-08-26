@@ -7,7 +7,6 @@ use Phossa2\Route\Resolver\ResolverSimple;
 use Phossa2\Route\Parser\ParserStd;
 use Phossa2\Route\Collector\CollectorPPR;
 use Phossa2\Route\Extension\RedirectToHttps;
-use Phossa2\Route\Extension\UserAuth;
 use Phossa2\Route\Extension\IdValidation;
 use Phossa2\Route\Extension\CollectorStats;
 
@@ -402,7 +401,6 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString("need auth AUTHED!");
 
         $dispatcher
-            ->addExtension(new UserAuth())
             ->addHandler(
                 function() {
                     echo "need auth";
@@ -410,7 +408,17 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
             ->addGet('/user/view/{id:d}', function() {
                     echo " AUTHED!";
                 })
-            ->dispatch('GET', '/user/view/123');
+            ->addExt(function($event) {
+                $result = $event->getParam('result');
+                $path = $result->getPath();
+                if (!isset($_SESSION['authed']) && '/user/' === substr($path, 0, 6)) {
+                    $result->setStatus(Status::UNAUTHORIZED);
+                    return false;
+                }
+                return true;
+            }, Dispatcher::EVENT_BEFORE_MATCH);
+
+        $dispatcher->dispatch('GET', '/user/view/123');
 
         // authed
         $_SESSION['authed'] = 1;

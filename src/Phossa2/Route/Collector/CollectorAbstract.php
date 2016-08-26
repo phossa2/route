@@ -17,31 +17,29 @@ namespace Phossa2\Route\Collector;
 use Phossa2\Route\Route;
 use Phossa2\Route\Message\Message;
 use Phossa2\Route\Traits\AddRouteTrait;
-use Phossa2\Event\EventCapableAbstract;
 use Phossa2\Shared\Debug\DebuggableTrait;
 use Phossa2\Route\Traits\HandlerAwareTrait;
 use Phossa2\Shared\Debug\DebuggableInterface;
 use Phossa2\Route\Interfaces\ResultInterface;
 use Phossa2\Route\Interfaces\CollectorInterface;
-use Phossa2\Shared\Extension\ExtensionAwareTrait;
 use Phossa2\Route\Interfaces\HandlerAwareInterface;
-use Phossa2\Shared\Extension\ExtensionAwareInterface;
+use Phossa2\Event\EventableExtensionCapableAbstract;
 
 /**
  * CollectorAbstract
  *
  * @package Phossa2\Route
  * @author  Hong Zhang <phossa@126.com>
- * @see     EventCapableAbstract
+ * @see     EventableExtensionCapableAbstract
  * @see     CollectorInterface
  * @see     HandlerAwareInterface
  * @see     DebuggableInterface
  * @version 2.0.0
  * @since   2.0.0 added
  */
-abstract class CollectorAbstract extends EventCapableAbstract implements CollectorInterface, HandlerAwareInterface, ExtensionAwareInterface, DebuggableInterface
+abstract class CollectorAbstract extends EventableExtensionCapableAbstract implements CollectorInterface, HandlerAwareInterface, DebuggableInterface
 {
-    use HandlerAwareTrait, ExtensionAwareTrait, DebuggableTrait, AddRouteTrait;
+    use HandlerAwareTrait, DebuggableTrait, AddRouteTrait;
 
     /**#@+
      * Collector level events
