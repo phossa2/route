@@ -18,7 +18,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "4.*",
-        "psr/log-implementation": "*"
+        "phossa2/logger": "*"
     },
     "autoload": {
         "psr-0": { "Phossa2\\Route\\": "src/" }
