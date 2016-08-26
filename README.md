@@ -521,7 +521,7 @@ Different strategy collectors can be combined together into one dispatcher.
   http://servername/path/controller-action-id-1-name-nick
   ```
 
-  This strategy is implemented in `Phossa\Route\Collector\CollectorPPR` class.
+  This strategy is implemented in `Phossa2\Route\Collector\CollectorPPR` class.
 
 - **Query Parameter Routing (QPR)**
 
@@ -532,12 +532,12 @@ Different strategy collectors can be combined together into one dispatcher.
   http://servername/path/?r=controller-action-id-1-name-nick
   ```
 
-  This strategy is implemented in `Phossa\Route\Collector\CollectorQPR` class.
+  This strategy is implemented in `Phossa2\Route\Collector\CollectorQPR` class.
 
 - **Regular Expression Routing (RER)**
 
   Regular expression based routing is the default routing strategy for this
-  library and implemented in `Phossa\Route\Collector\Collector` class.
+  library and implemented in `Phossa2\Route\Collector\Collector` class.
 
   ```php
   // created with default RER collector
@@ -554,7 +554,7 @@ Different regex matching algorithms can be used with the RER collector.
 - <a name="fastroute"></a>**FastRoute algorithm**
 
   This *Group Count Based algorithm* is implemented in
-  `Phossa2\Route\Regex\ParserGcb` class and explained in  detail in this article
+  `Phossa2\Route\Parser\ParserGcb` class and explained in  detail in this article
   ["Fast request routing using regular expressions"](http://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html).
 
   phossa-route uses this algorithm by default.
@@ -562,7 +562,7 @@ Different regex matching algorithms can be used with the RER collector.
 - **Standard algorithm**
 
   This algorithm is developed by phossa2/route and a little bit slower than the
-  fastRoute GCB algorithm. It is implemented in `Phossa2\Route\Regex\ParserStd`
+  fastRoute GCB algorithm. It is implemented in `Phossa2\Route\Parser\ParserStd`
   class.
 
   Use this standard algorithm,
