@@ -18,13 +18,17 @@
     },
     "require-dev": {
         "phpunit/phpunit": "4.*",
-        "phossa2/logger": "*"
+        "squizlabs/php_codesniffer": "2.*"
+    },
+    "suggest": {
+        "psr/log-implementation": "Allows log messages"
     },
     "autoload": {
         "psr-0": { "Phossa2\\Route\\": "src/" }
     },
     "scripts": {
         "test": "phpunit",
+        "check": "phpcs --standard=psr2 src/",
         "format": "phpcbf --standard=psr2 src/"
     },
     "replace": {

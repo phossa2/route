@@ -91,4 +91,3 @@ class UserAuth extends EventableExtensionAbstract
         ];
     }
 }
-

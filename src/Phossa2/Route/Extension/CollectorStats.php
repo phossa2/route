@@ -133,4 +133,3 @@ class CollectorStats extends EventableExtensionAbstract
         ];
     }
 }
-

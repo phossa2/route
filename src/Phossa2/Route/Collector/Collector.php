@@ -94,7 +94,9 @@ class Collector extends CollectorAbstract
         }
 
         $this->debug(Message::get(
-            Message::RTE_ROUTE_ADDED, $route->getPattern(), join('|', $methods)
+            Message::RTE_ROUTE_ADDED,
+            $route->getPattern(),
+            join('|', $methods)
         ));
         return $this;
     }
@@ -119,7 +121,8 @@ class Collector extends CollectorAbstract
                     Message::RTE_ROUTE_DUPLICATED,
                     $route->getPattern(),
                     $method
-                ), Message::RTE_ROUTE_DUPLICATED
+                ),
+                Message::RTE_ROUTE_DUPLICATED
             );
         }
     }
@@ -177,7 +180,9 @@ class Collector extends CollectorAbstract
             ->setHandler($route->getHandler(Status::OK));
 
         $this->debug(Message::get(
-            Message::RTE_ROUTE_MATCHED, $result->getPath(), $route->getPattern()
+            Message::RTE_ROUTE_MATCHED,
+            $result->getPath(),
+            $route->getPattern()
         ));
         return true;
     }

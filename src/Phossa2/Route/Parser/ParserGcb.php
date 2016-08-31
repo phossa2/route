@@ -107,11 +107,14 @@ class ParserGcb extends ParserAbstract
             $map = $m[1];
         }
 
-        $result = preg_replace([
+        $result = preg_replace(
+            [
             '~' . $ph . '(*SKIP)(*FAIL) | \[~x', '~' . $ph . '(*SKIP)(*FAIL) | \]~x',
             '~\{' . self::MATCH_GROUP_NAME . '\}~x', '~' . $ph . '~x',
-            ], ['(?:', ')?', '{\\1:' . self::MATCH_SEGMENT . '}', '(\\2)'],
-            strtr('/' . trim($pattern, '/'), $this->shortcuts));
+            ],
+            ['(?:', ')?', '{\\1:' . self::MATCH_SEGMENT . '}', '(\\2)'],
+            strtr('/' . trim($pattern, '/'), $this->shortcuts)
+        );
 
         return [$result, $map];
     }

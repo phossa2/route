@@ -142,7 +142,9 @@ class ParserStd extends ParserAbstract
         }
 
         $this->debug(Message::get(
-            Message::RTE_PARSER_MATCH, $routeName, $this->regex[$routeName]
+            Message::RTE_PARSER_MATCH,
+            $routeName,
+            $this->regex[$routeName]
         ));
 
         return [$routeName, $res];
