@@ -171,11 +171,8 @@ class Collector extends CollectorAbstract
             $result->setStatus(Status::METHOD_NOT_ALLOWED);
             return false;
         }
-
-        /* @var RouteInterface $route */
         $route = $this->routes[$routeKey][$method];
-        $result
-            ->setStatus(Status::OK)->setRoute($route)
+        $result->setStatus(Status::OK)->setRoute($route)
             ->setParameters(array_replace($route->getDefault(), $matches))
             ->setHandler($route->getHandler(Status::OK));
 
