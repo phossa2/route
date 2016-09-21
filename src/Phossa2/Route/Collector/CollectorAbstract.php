@@ -18,10 +18,12 @@ use Phossa2\Route\Route;
 use Phossa2\Route\Message\Message;
 use Phossa2\Route\Traits\AddRouteTrait;
 use Phossa2\Shared\Debug\DebuggableTrait;
+use Phossa2\Route\Traits\PrefixAwareTrait;
 use Phossa2\Route\Traits\HandlerAwareTrait;
 use Phossa2\Shared\Debug\DebuggableInterface;
 use Phossa2\Route\Interfaces\ResultInterface;
 use Phossa2\Route\Interfaces\CollectorInterface;
+use Phossa2\Route\Interfaces\PrefixAwareInterface;
 use Phossa2\Route\Interfaces\HandlerAwareInterface;
 use Phossa2\Event\EventableExtensionCapableAbstract;
 
@@ -34,12 +36,13 @@ use Phossa2\Event\EventableExtensionCapableAbstract;
  * @see     CollectorInterface
  * @see     HandlerAwareInterface
  * @see     DebuggableInterface
- * @version 2.0.0
+ * @version 2.0.1
  * @since   2.0.0 added
+ * @since   2.0.1 added PrefixAware* stuff
  */
-abstract class CollectorAbstract extends EventableExtensionCapableAbstract implements CollectorInterface, HandlerAwareInterface, DebuggableInterface
+abstract class CollectorAbstract extends EventableExtensionCapableAbstract implements CollectorInterface, PrefixAwareInterface, HandlerAwareInterface, DebuggableInterface
 {
-    use HandlerAwareTrait, DebuggableTrait, AddRouteTrait;
+    use HandlerAwareTrait, PrefixAwareTrait, DebuggableTrait, AddRouteTrait;
 
     /**#@+
      * Collector level events
@@ -68,11 +71,18 @@ abstract class CollectorAbstract extends EventableExtensionCapableAbstract imple
 
     /**
      * {@inheritDoc}
+     *
+     * @since 2.0.1 added patch prefix checking
      */
     public function matchRoute(ResultInterface $result)/*# : bool */
     {
         $res = false;
         $param = ['result' => $result];
+
+        // skip if path prefix not match
+        if (!$this->matchPathPrefix($result->getPath())) {
+            return false;
+        }
 
         if ($this->trigger(self::EVENT_BEFORE_MATCH, $param) &&
             $this->match($result) &&
