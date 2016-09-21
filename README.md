@@ -31,6 +31,8 @@ Why another routing library ?
 
 - [Concise route syntax](#syntax). Route parameters and optional route segments.
 
+- Fast routing using [path prefix checking](#prefix) in  the collectors.
+
 - [Multiple routing collections](#collector) allowed.
 
 - Different level of [default handlers](#default).
@@ -223,6 +225,21 @@ $dispatcher->dispatch('GET', '/user/view/123456');
 
   $dispatcher->addCollector($collector_user)
              ->addCollector($collector_blog);
+  ```
+
+- **<a name="prefix"></a>Path prefix matching**
+
+  Collectors may set a path prefix using `setPathPrefix()` to indicate the exact
+  URI path prefix is handling. Any non-matching prefix found will skip the
+  collector entirely.
+
+  ```php
+  // '/user/' prefix
+  $collector_user = (new Collector())
+      ->setPathPrefix('/user/')
+      ->addGet('/user/list/{id:d}', 'handler1')
+      ->addGet('/user/view/{id:d}', 'handler2')
+      ->addPost('/user/new', 'handler3');
   ```
 
 - **Same route pattern**
