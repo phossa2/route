@@ -108,12 +108,16 @@ class Dispatcher extends EventableExtensionCapableAbstract implements Dispatcher
 
     /**
      * {@inheritDoc}
+     *
+     * @since  2.0.1 added $parameters
      */
     public function match(
         /*# string */ $httpMethod,
-        /*# string */ $uriPath
+        /*# string */ $uriPath,
+        array $parameters = []
     )/*# :  bool */ {
         $this->initResult($httpMethod, $uriPath);
+        $this->getResult()->setParameters($parameters);
 
         $param = ['result' => $this->result];
         if ($this->trigger(self::EVENT_BEFORE_MATCH, $param) &&
@@ -127,13 +131,18 @@ class Dispatcher extends EventableExtensionCapableAbstract implements Dispatcher
 
     /**
      * {@inheritDoc}
+     *
+     * @since  2.0.1 added $parameters
      */
     public function dispatch(
         /*# string */ $httpMethod,
-        /*# string */ $uriPath
+        /*# string */ $uriPath,
+        array $parameters = []
     )/*# : bool */ {
         // match & dispatch
-        if ($this->match($httpMethod, $uriPath) && $this->isDispatched()) {
+        if ($this->match($httpMethod, $uriPath, $parameters) &&
+            $this->isDispatched()
+        ) {
             return true;
         }
 

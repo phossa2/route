@@ -27,7 +27,7 @@ use Phossa2\Route\Interfaces\ResultInterface;
  * @author  Hong Zhang <phossa@126.com>
  * @see     ObjectAbstract
  * @see     ResultInterface
- * @version 2.0.0
+ * @version 2.0.1
  * @since   2.0.0 added
  */
 class Result extends ObjectAbstract implements ResultInterface
@@ -139,7 +139,9 @@ class Result extends ObjectAbstract implements ResultInterface
      */
     public function setParameters(array $params)
     {
-        $this->parameters = array_replace($this->parameters, $params);
+        if (!empty($params)) {
+            $this->parameters = array_replace($this->parameters, $params);
+        }
         return $this;
     }
 
