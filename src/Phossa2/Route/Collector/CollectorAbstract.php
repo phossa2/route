@@ -76,14 +76,26 @@ abstract class CollectorAbstract extends EventableExtensionCapableAbstract imple
      */
     public function matchRoute(ResultInterface $result)/*# : bool */
     {
-        $res = false;
-        $param = ['result' => $result];
-
         // skip if path prefix not match
         if (!$this->matchPathPrefix($result->getPath())) {
             return false;
         }
 
+        // match with each routes in the collector
+        return $this->realMatchRoute($result);
+    }
+
+    /**
+     * Matching
+     *
+     * @param  ResultInterface $result
+     * @return boolean
+     * @access protected
+     */
+    protected function realMatchRoute(ResultInterface $result)/*# : bool */
+    {
+        $res = false;
+        $param = ['result' => $result];
         if ($this->trigger(self::EVENT_BEFORE_MATCH, $param) &&
             $this->match($result) &&
             $this->trigger(self::EVENT_AFTER_MATCH, $param)
