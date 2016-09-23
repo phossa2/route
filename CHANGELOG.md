@@ -8,3 +8,5 @@ project adheres to [Semantic Versioning](http://semver.org/).
 - Added
 
   - Path prefix feature. `PrefixAwareInterface`, `PrefixAwareTrait`
+
+  - Added `HandlerInterface` and `MiddlewareHandler` for middleware support.

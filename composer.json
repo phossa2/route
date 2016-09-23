@@ -21,7 +21,8 @@
         "squizlabs/php_codesniffer": "2.*"
     },
     "suggest": {
-        "psr/log-implementation": "Allows log messages"
+        "psr/log-implementation": "Allows log messages",
+        "psr/http-message-implementation": "Allows handling middleware"
     },
     "autoload": {
         "psr-0": { "Phossa2\\Route\\": "src/" }
