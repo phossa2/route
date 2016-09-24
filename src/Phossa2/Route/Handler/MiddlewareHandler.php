@@ -43,7 +43,7 @@ class MiddlewareHandler extends ObjectAbstract implements HandlerInterface
     protected $middleware;
 
     /**
-     * @param  mixed $middleware
+     * @param  mixed $middleware middleware or middleware queue
      * @access public
      */
     public function __construct($middleware)
@@ -52,7 +52,7 @@ class MiddlewareHandler extends ObjectAbstract implements HandlerInterface
     }
 
     /**
-     * Handles the result
+     * Handles the result with middleware
      *
      * @param  ResultInterface $result
      * @access public
@@ -60,9 +60,10 @@ class MiddlewareHandler extends ObjectAbstract implements HandlerInterface
      */
     public function __invoke(ResultInterface $result)
     {
-        $params = $result->getParameters();
         $middleware = $this->middleware;
-        $middleware($params['request'], $params['response']);
+        $params = $result->getParameters();
+        $response = $middleware($params['request'], $params['response']);
+        $result->setParameters(['response' => $response]);
     }
 }
 
