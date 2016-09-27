@@ -66,4 +66,3 @@ class MiddlewareHandler extends ObjectAbstract implements HandlerInterface
         $result->setParameters(['response' => $response]);
     }
 }
-
