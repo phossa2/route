@@ -27,8 +27,9 @@ use Phossa2\Route\Interfaces\CollectorAwareInterface;
  * @package Phossa2\Route
  * @author  Hong Zhang <phossa@126.com>
  * @see     CollectorAwareInterface
- * @version 2.0.0
+ * @version 2.1.0
  * @since   2.0.0 added
+ * @since   2.1.0 added `addCollectors()`
  */
 trait CollectorAwareTrait
 {
@@ -54,6 +55,17 @@ trait CollectorAwareTrait
         }
 
         $this->collectors[] = $collector;
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addCollectors(array $collectors)
+    {
+        foreach ($collectors as $coll) {
+            $this->addCollector($coll);
+        }
         return $this;
     }
 

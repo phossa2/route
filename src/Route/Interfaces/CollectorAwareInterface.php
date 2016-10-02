@@ -19,8 +19,9 @@ namespace Phossa2\Route\Interfaces;
  *
  * @package Phossa2\Route
  * @author  Hong Zhang <phossa@126.com>
- * @version 2.0.0
+ * @version 2.1.0
  * @since   2.0.0 added
+ * @since   2.1.0 added `addCollectors()`
  */
 interface CollectorAwareInterface
 {
@@ -33,6 +34,16 @@ interface CollectorAwareInterface
      * @api
      */
     public function addCollector(CollectorInterface $collector);
+
+    /**
+     * Add batch of collectors
+     *
+     * @param  CollectorInterface[] $collectors
+     * @return $this
+     * @access public
+     * @api
+     */
+    public function addCollectors(array $collectors);
 
     /**
      * Get all collectors
