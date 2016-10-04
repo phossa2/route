@@ -22,14 +22,17 @@ use Phossa2\Route\Interfaces\ResolverInterface;
 /**
  * ResolverSimple
  *
- * Resolving ['controllerName', 'actionName'] into callable
+ * Resolving ['ControllerName', 'ActionName'] into callable
+ *
+ * $handler = [new ControllerNameController(), 'ActionNameAction'];
  *
  * @package Phossa2\Route
  * @author  Hong Zhang <phossa@126.com>
  * @see     ObjectAbstract
  * @see     ResolverInterface
- * @version 2.0.0
+ * @version 2.1.0
  * @since   2.0.0 added
+ * @since   2.1.0 updated
  */
 class ResolverSimple extends ObjectAbstract implements ResolverInterface
 {
@@ -91,11 +94,13 @@ class ResolverSimple extends ObjectAbstract implements ResolverInterface
         /*# string */ $controller,
         /*# string */ $action
     )/*# : callable */ {
+        $controllerName = $controller . $this->controller_suffix;
+        $actionName = $action . $this->action_suffix;
         foreach ($this->namespaces as $ns) {
-            $class = $ns . '\\' . $controller . $this->controller_suffix;
+            $class = $ns . '\\' . $controllerName;
             if (class_exists($class)) {
                 $obj = new $class();
-                return [$obj, $action . $this->action_suffix];
+                return [$obj, $actionName];
             }
         }
         throw new LogicException(
