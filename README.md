@@ -1,4 +1,7 @@
-# phossa2/route
+# phossa2/route [ABANDONED]
+
+**PLEASE USE [phoole/route](https://github.com/phoole/route) library instead**
+
 [![Build Status](https://travis-ci.org/phossa2/route.svg?branch=master)](https://travis-ci.org/phossa2/route)
 [![Code Quality](https://scrutinizer-ci.com/g/phossa2/route/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phossa2/route/)
 [![Code Climate](https://codeclimate.com/github/phossa2/route/badges/gpa.svg)](https://codeclimate.com/github/phossa2/route)
